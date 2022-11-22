@@ -1,3 +1,100 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.db.models import Q
+from django.db.models.signals import pre_save, post_save
+from django.utils.text import slugify
 
-# Create your models here.
+from .utils import (image_name_path_handler, slugify_title)
+
+
+class User(AbstractUser):
+    fullname = models.CharField(max_length=100, null=True, blank=True)
+    bio = models.TextField(max_length=1000, null=True, blank=True)
+    img = models.ImageField(upload_to=image_name_path_handler, null=True, blank=True, verbose_name="User Profile Image")
+    is_author = models.BooleanField(default=False)
+
+
+class AuthorManagerActive(models.Manager):
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(is_author=True)
+
+class Author(User):
+    active = AuthorManagerActive()
+    class Meta:
+        proxy = True
+
+
+class ModelTrack(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    class Meta:
+        abstract = True
+
+
+class Category(ModelTrack):
+    name = models.CharField(max_length=120)
+    description = models.TextField(null=True, blank=True)
+    img = models.ImageField(upload_to=image_name_path_handler, null=True, blank=True, verbose_name="Category Image")
+
+    class Meta:
+        verbose_name = 'Kategori'
+        verbose_name_plural = 'Kategoriler'
+
+    def __str__(self):
+        return self.name[:70]
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=120)
+
+    class Meta:
+        verbose_name = 'Etiket'
+        verbose_name_plural = 'Etiketler'
+
+
+class ArticleQuerySet(models.QuerySet):
+    def get_active_articles(self, query=None):
+        if query is None or query == "":
+            return self.filter(is_active=True)
+        lookup = Q(is_active=True) & Q(title__icontains=query) | Q(body__icontains=query)
+        return self.filter(lookup)
+
+class ArticleManager(models.Manager):
+    def get_queryset(self):
+        return ArticleQuerySet(self.model, using=self._db)
+    
+    def articles(self, query=None):
+        return self.get_queryset().get_active_articles(query=query)
+
+class Article(ModelTrack):
+    title = models.CharField(max_length=500, blank=False, null=False)
+    body = models.TextField(blank=False)
+    slug = models.SlugField(max_length=700, unique=True, editable=False, blank=True, null=True)
+    is_active = models.BooleanField(default=False)
+    author = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name="author")
+    categories = models.ManyToManyField(Category, blank=True, related_name="categories")
+    tags = models.ManyToManyField(Tag, blank=True, related_name="tags")
+    publish_date = models.DateTimeField()
+    img = models.ImageField(upload_to=image_name_path_handler, null=True, blank=True, verbose_name="Article Image")
+    objects=ArticleManager()
+
+    class Meta:
+        verbose_name = 'Makale'
+        verbose_name_plural = 'Makaleler'
+
+    def get_categories(self):
+        return " - ".join([category.name for category in self.categories.all()])
+
+    def __str__(self):
+        return self.title[:50]
+
+def article_pre_save(sender, instance, *args, **kwargs):
+    if instance.slug is None:
+        slugify_title(instance, save=False)
+
+def article_post_save(sender, instance, created, *args, **kwargs):
+    if created:
+        slugify_title(instance, save=True)
+
+pre_save.connect(article_pre_save, sender=Article)
+post_save.connect(article_post_save, sender=Article)
