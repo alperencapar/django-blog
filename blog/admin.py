@@ -25,11 +25,11 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    # list_display = ['title', 'author', 'get_categories', 'slug', 'is_active', 'publish_date']
-    list_display = ['title', 'author', 'slug', 'is_active', 'publish_date']
+    list_display = ['title', 'author', 'slug', 'is_active', 'publish_date', 'published_date']
     list_filter = ['categories', 'is_active', 'created', 'updated']
     search_fields = ['title']
     ordering = ['-created', '-updated']
+    exclude = ('published_date',)
 
     actions = ["make_publish", "make_unpublish"]
 

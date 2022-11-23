@@ -54,6 +54,8 @@ class Tag(models.Model):
 
 class ArticleQuerySet(models.QuerySet):
     def get_active_articles(self, query=None):
+        # Article.objects.all().get_active_articles()
+        # Article.objects.all().get_active_articles("101")
         if query is None or query == "":
             return self.filter(is_active=True)
         lookup = Q(is_active=True) & Q(title__icontains=query) | Q(body__icontains=query)
@@ -63,7 +65,9 @@ class ArticleManager(models.Manager):
     def get_queryset(self):
         return ArticleQuerySet(self.model, using=self._db)
     
-    def articles(self, query=None):
+    def active_articles(self, query=None):
+        # Article.objects.active_articles()
+        # Article.objects.active_articles("searh query")
         return self.get_queryset().get_active_articles(query=query)
 
 class Article(ModelTrack):
@@ -74,7 +78,8 @@ class Article(ModelTrack):
     author = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name="author")
     categories = models.ManyToManyField(Category, blank=True, related_name="categories")
     tags = models.ManyToManyField(Tag, blank=True, related_name="tags")
-    publish_date = models.DateTimeField()
+    publish_date = models.DateTimeField(null=True, blank=True)
+    published_date = models.DateTimeField(null=True, blank=True)
     img = models.ImageField(upload_to=image_name_path_handler, null=True, blank=True, verbose_name="Article Image")
     objects=ArticleManager()
 
