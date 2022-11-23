@@ -27,5 +27,18 @@ class TagAdmin(admin.ModelAdmin):
 class ArticleAdmin(admin.ModelAdmin):
     # list_display = ['title', 'author', 'get_categories', 'slug', 'is_active', 'publish_date']
     list_display = ['title', 'author', 'slug', 'is_active', 'publish_date']
+    list_filter = ['categories', 'is_active', 'created', 'updated']
+    search_fields = ['title']
+    ordering = ['-created', '-updated']
+
+    actions = ["make_publish", "make_unpublish"]
+
+    def make_publish(self, request, queryset):
+        queryset.update(is_active=True)
+    make_publish.short_description = "Yayınla"
+
+    def make_unpublish(self, request, queryset):
+        queryset.update(is_active=False)
+    make_unpublish.short_description = "Yayından kaldır"
 
 
