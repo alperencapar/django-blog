@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # third party
+    'tinymce',
+    'django_cleanup.apps.CleanupConfig',
 
     # my apps
     'blog.apps.BlogConfig',

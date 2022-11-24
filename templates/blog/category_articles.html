@@ -1,0 +1,32 @@
+{% extends 'blog/main-template.html' %}
+
+
+{% block title %}Category Articles{% endblock title %}
+
+{% block main_body %}
+
+{% if articles %}
+
+{% for article in articles %}
+
+<div>
+    <a href="{{article.get_absolute_url}}">
+        <h2>
+            {{article.title}}
+        </h2>
+    </a>
+</div>
+    
+{% endfor %}
+
+{% else %}
+<p>
+    <b>
+        Category or article not found.
+    </b>
+</p>
+<a href="{{request.META.HTTP_REFERER}}">Go Back</a>
+
+{% endif %}
+
+{% endblock main_body %}

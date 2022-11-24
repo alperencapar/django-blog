@@ -1,0 +1,26 @@
+{% extends 'blog/main-template.html' %}
+
+
+{% block title %}
+    {{article.title}}
+{% endblock title %}
+    
+
+{% block main_body %}
+    {% if article %}
+    <h3>
+        {{article.title}}
+    </h3>
+    <span>
+        <b>{{article.created}}</b>
+        <b>{{article.author}}</b>
+        
+    </span>
+
+    <div class="content">
+        {{article.body|safe}}
+    </div>
+    
+    {% endif %}
+{% endblock main_body %}
+    
