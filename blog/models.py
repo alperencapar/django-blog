@@ -39,6 +39,10 @@ class Category(ModelTrack):
     description = models.TextField(null=True, blank=True)
     img = models.ImageField(upload_to=image_name_path_handler, null=True, blank=True, verbose_name="Category Image")
 
+    def get_absolute_url(self):
+        category_name_slug = slugify(self.name)
+        return reverse("category_detail", kwargs={"category_name": category_name_slug})
+
     class Meta:
         verbose_name = "Kategori"
         verbose_name_plural = "Kategoriler"

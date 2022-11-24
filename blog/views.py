@@ -6,6 +6,7 @@ from .models import (Article, Category)
 def home(request):
     articles = Article.objects.active_articles().all()
     categories = Category.objects.all()
+
     context = {
         "articles": articles,
         "categories": categories,
@@ -15,7 +16,7 @@ def home(request):
 
 def article_detail(request, slug):
     article = get_object_or_404(Article.objects.active_articles(), slug=slug)
-    
+
     context = {
         "article": article
     }
@@ -24,9 +25,8 @@ def article_detail(request, slug):
 
 def category_articles(request, category_name):
     articles = Article.objects.search_category(category_name).all()
-    print(articles)
+
     context = {
         "articles": articles
     }
-
     return render(request, "blog/category_articles.html", context)

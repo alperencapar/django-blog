@@ -9,5 +9,5 @@ urlpatterns = [
     path('',home, name="blog-home"),
     path('article/<slug:slug>/',article_detail, name="article_detail"),
     # path('categories/',article_detail, name="article_detail"),
-    path('category/<slug:category_name>/',category_articles, name="article_detail"),
+    path('category/<slug:category_name>/',category_articles, name="category_detail"),
 ]
