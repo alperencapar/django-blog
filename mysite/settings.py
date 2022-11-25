@@ -203,7 +203,7 @@ CKEDITOR_CONFIGS = {
             'codesnippet',
             'codesnippetgeshi'
         ]),
-        # 'toolbarCanCollapse': True,
+        'toolbarCanCollapse': True,
         
     },
 }
