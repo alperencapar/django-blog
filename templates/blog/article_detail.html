@@ -4,10 +4,14 @@
 {% block title %}
     {{article.title}}
 {% endblock title %}
-    
+
 
 {% block main_body %}
     {% if article %}
+
+    {% if article.img %}
+    <img src="{{article.img.url}}" alt="Image of {{article.title}} article">
+    {% endif %}
     <h3>
         {{article.title}}
     </h3>
@@ -21,6 +25,8 @@
         {{article.body|safe}}
     </div>
     
+    <script src="{{ STATIC_URL }}js/tiny_mce/tiny_mce.js"></script>
+
     {% endif %}
 {% endblock main_body %}
     

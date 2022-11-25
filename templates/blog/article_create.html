@@ -1,0 +1,14 @@
+{% extends 'blog/main-template.html' %}
+{% load static %}
+
+{% block title %}Category Articles{% endblock title %}
+
+{% block main_body %}
+
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.as_p}}
+    {{form.media}}
+    <input type="submit" value="Create">
+</form>
+{% endblock main_body %}

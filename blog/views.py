@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import (Article, Category)
+from .forms import (ArticleForm)
 # from django.http import Http404
 
 def home(request):
@@ -30,3 +32,19 @@ def category_articles(request, category_name):
         "articles": articles
     }
     return render(request, "blog/category_articles.html", context)
+
+@login_required()
+def create_article(request):
+    article_form = ArticleForm(request.POST or None, request.FILES)
+
+    if request.method == "POST" and article_form.is_valid():
+        new_article = article_form.save(commit=False)
+        user = request.user
+        new_article.author = user
+        article_form.save()
+        new_article.save()
+        return redirect("article_detail", new_article.slug)
+    context = {
+        "form": article_form,
+    }
+    return render(request, "blog/article_create.html", context)
