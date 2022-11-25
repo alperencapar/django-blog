@@ -5,7 +5,7 @@ from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
 from django.urls import reverse
 
-from django_ckeditor_5.fields import CKEditor5Field
+from ckeditor_uploader.fields import RichTextUploadingField
 
 from .utils import (image_name_path_handler, slugify_title, handle_published_date)
 
@@ -89,7 +89,7 @@ class ArticleManager(models.Manager):
 
 class Article(ModelTrack):
     title = models.CharField(max_length=500, blank=False, null=False)
-    body = CKEditor5Field(config_name='extends')
+    body = RichTextUploadingField(config_name="default")
     slug = models.SlugField(max_length=700, unique=True, editable=False, blank=True, null=True)
     is_active = models.BooleanField(default=False)
     author = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name="author")
