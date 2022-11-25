@@ -3,11 +3,23 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import (User, Article, Category)
 from .forms import (ArticleForm)
+from django.core.paginator import Paginator
+from django.contrib import messages
 # from django.http import Http404
 
 def home(request):
     articles = Article.objects.active_articles().all()
     categories = Category.objects.all()
+    
+    page_number = request.GET.get("page", 1)
+    paginator = Paginator(articles, 3)
+    last_page = paginator.num_pages
+
+    try:
+        paginated_query = paginator.page(page_number)
+    except:
+        messages.warning(request, "Sayfa bulunamadığı için son sayfaya yönlendirildiniz")
+        paginated_query = paginator.page(last_page)
 
     if request.user.id:
         user_is_author = User.objects.get(id = request.user.id).is_author
@@ -15,7 +27,7 @@ def home(request):
         user_is_author = None
 
     context = {
-        "articles": articles,
+        "articles": paginated_query,
         "categories": categories,
         "user_is_author": user_is_author,
     }
@@ -61,7 +73,7 @@ def update_article(request, slug):
     article = get_object_or_404(Article.objects.active_articles(), slug=slug)
     form = ArticleForm(request.POST or None, instance=article)
 
-    if request.method == 'POST' and form.is_valid():
+    if request.method == "POST" and form.is_valid():
         form.save()
         return redirect("article_detail", article.slug)
     
