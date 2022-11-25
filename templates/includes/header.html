@@ -4,6 +4,9 @@
     </div>
 
     <nav>
+        {% if user_is_author %}
+            <a href="{% url 'article_create' %}">New Article</a>
+        {% endif %}
     </nav>
 </header>
 <hr />

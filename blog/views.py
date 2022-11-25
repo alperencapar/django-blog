@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import (Article, Category)
+from .models import (User, Article, Category)
 from .forms import (ArticleForm)
 # from django.http import Http404
 
@@ -9,10 +9,15 @@ def home(request):
     articles = Article.objects.active_articles().all()
     categories = Category.objects.all()
 
+    if request.user.id:
+        user_is_author = User.objects.get(id = request.user.id).is_author
+    else:
+        user_is_author = None
+
     context = {
         "articles": articles,
         "categories": categories,
-        
+        "user_is_author": user_is_author,
     }
     return render(request, "blog/home.html", context)
 
@@ -33,6 +38,7 @@ def category_articles(request, category_name):
     }
     return render(request, "blog/category_articles.html", context)
 
+
 @login_required()
 def create_article(request):
     article_form = ArticleForm(request.POST or None, request.FILES)
@@ -46,5 +52,20 @@ def create_article(request):
         return redirect("article_detail", new_article.slug)
     context = {
         "form": article_form,
+    }
+    return render(request, "blog/article_create.html", context)
+
+
+@login_required()
+def update_article(request, slug):
+    article = get_object_or_404(Article.objects.active_articles(), slug=slug)
+    form = ArticleForm(request.POST or None, instance=article)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect("article_detail", article.slug)
+    
+    context = {
+        "form": form
     }
     return render(request, "blog/article_create.html", context)

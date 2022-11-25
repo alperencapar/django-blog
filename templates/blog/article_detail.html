@@ -9,6 +9,11 @@
 {% block main_body %}
     {% if article %}
 
+    {% if request.user == article.author %}
+    <a href="{% url 'article_update' article.slug %}">Edit</a>
+
+    {% endif %}
+
     {% if article.img %}
     <img src="{{article.img.url}}" alt="Image of {{article.title}} article">
     {% endif %}
