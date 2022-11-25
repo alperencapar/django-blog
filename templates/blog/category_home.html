@@ -1,0 +1,33 @@
+{% extends 'blog/main-template.html' %}
+
+
+{% block title %}Categories{% endblock title %}
+
+
+{% block main_body %}
+
+{% if categories %}
+
+
+{% for category in categories %}
+
+<div>
+    <a href="{{category.get_absolute_url}}">{{category.name}}</a>
+    <p>
+        {{category.description}}
+    </p>
+
+    
+    {% if category.img %}
+        <img src="{{category.img.url}}" alt="">
+    {% endif %}
+        
+</div>
+
+{% endfor %}
+    
+
+{% endif %}
+
+
+{% endblock main_body %}

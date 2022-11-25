@@ -36,6 +36,14 @@ def article_detail(request, slug):
     }
     return render(request, "blog/article_detail.html", context)
 
+def categories_home(request):
+    categories = Category.objects.all()
+
+    context = {
+        "categories": categories
+    }
+    return render(request, "blog/category_home.html", context)
+
 
 def category_articles(request, category_name):
     articles = Article.objects.search_category(category_name).all()
