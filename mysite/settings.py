@@ -155,7 +155,7 @@ CKEDITOR_ALLOW_NONIMAGE_FILES = False
 
 CKEDITOR_CONFIGS = {
     "default": {
-        "width": "100%",
+        # "width": "100%",
         'toolbar':[
             {'name': 'document', 'items': ['Source', '-', 'Save', 'Preview', 'Print', '-', 'Templates']},
             {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']},
@@ -183,7 +183,8 @@ CKEDITOR_CONFIGS = {
                 'Maximize',
             ]},
         ],
-        'skin': 'moono',
+        # 'skin': 'moono',
+        'skin': 'moono-lisa',
         'tabSpaces': 4,
         'extraPlugins': ','.join([
             'uploadimage', # the upload image feature
@@ -205,7 +206,4 @@ CKEDITOR_CONFIGS = {
         # 'toolbarCanCollapse': True,
         
     },
-    'dark_mode': {
-        'skin': 'moono-dark',
-    }
 }
