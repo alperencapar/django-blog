@@ -7,19 +7,14 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 # from django.http import Http404
 
+from .utils import handle_pagination
+
 def home(request):
     articles = Article.objects.active_articles().all()
     categories = Category.objects.all()
-    
-    page_number = request.GET.get("page", 1)
-    paginator = Paginator(articles, 3)
-    last_page = paginator.num_pages
 
-    try:
-        paginated_query = paginator.page(page_number)
-    except:
-        messages.warning(request, "Sayfa bulunamadığı için son sayfaya yönlendirildiniz")
-        paginated_query = paginator.page(last_page)
+    page_number = int(request.GET.get("page", 1))
+    paginated_query = handle_pagination(articles, 3, page_number)
 
     if request.user.id:
         user_is_author = User.objects.get(id = request.user.id).is_author
@@ -45,8 +40,11 @@ def article_detail(request, slug):
 def category_articles(request, category_name):
     articles = Article.objects.search_category(category_name).all()
 
+    page_number = int(request.GET.get("page", 1))
+    paginated_query = handle_pagination(articles, 3, page_number)
+
     context = {
-        "articles": articles
+        "articles": paginated_query
     }
     return render(request, "blog/category_articles.html", context)
 
