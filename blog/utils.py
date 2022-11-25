@@ -1,5 +1,7 @@
 from django.utils.text import slugify
 from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db.models import QuerySet
 
 import pathlib
 import uuid
@@ -42,3 +44,15 @@ def handle_published_date(instance):
         #django.utils timezone used for tz compatibility(tz info stored inside timezone.now() method) 
         instance.published_date = timezone.now()
         return instance
+
+def handle_pagination(query: QuerySet, per_item: int, page_number: int):
+    print(type(page_number))
+    paginator = Paginator(query, per_item)
+    last_page = paginator.num_pages
+
+    try:
+        paginated_query = paginator.page(page_number)
+    except:
+        paginated_query = paginator.page(last_page)
+
+    return paginated_query
