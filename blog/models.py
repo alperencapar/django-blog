@@ -4,10 +4,11 @@ from django.db.models import Q
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
 from django.urls import reverse
+from django.utils import timezone
 
 from ckeditor_uploader.fields import RichTextUploadingField
 
-from .utils import (image_name_path_handler, slugify_title, handle_published_date)
+from .utils import (image_name_path_handler, slugify_title, handle_empty_auto_publish_date)
 
 
 class User(AbstractUser):
@@ -61,18 +62,16 @@ class Tag(models.Model):
 
 class ArticleQuerySet(models.QuerySet):
     def get_active_articles(self, query=None):
-        # Article.objects.all().get_active_articles()
-        # Article.objects.all().get_active_articles("101")
         if query is None or query == "":
-            return self.filter(is_active=True)
-        lookup = Q(is_active=True) & Q(title__icontains=query) | Q(body__icontains=query) | Q(categories__icontains=query)
+            return self.filter(is_active=True, auto_publish_date__lte=timezone.now())
+        lookup = Q(is_active=True) & Q(auto_publish_date__lte=timezone.now()) | Q(title__icontains=query) | Q(body__icontains=query) | Q(categories__icontains=query)
         return self.filter(lookup)
 
     def get_category_articles(self, query=None):
         if query is None or query == "":
             return self.none
         category_name = query.replace("-", " ")
-        lookup = Q(is_active=True) & Q(categories__name__icontains=category_name)
+        lookup = Q(is_active=True) & Q(categories__name__icontains=category_name) & Q(auto_publish_date__lte=timezone.now())
         return self.filter(lookup)
 
 class ArticleManager(models.Manager):
@@ -95,8 +94,7 @@ class Article(ModelTrack):
     author = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name="author")
     categories = models.ManyToManyField(Category, blank=True, related_name="categories")
     tags = models.ManyToManyField(Tag, blank=True, related_name="tags")
-    auto_publish_date = models.DateTimeField(null=True, blank=True)
-    published_date = models.DateTimeField(null=True, blank=True)
+    auto_publish_date = models.DateTimeField(default=timezone.now, blank=True)
     img = models.ImageField(upload_to=image_name_path_handler, null=True, blank=True, verbose_name="Article Image")
     objects=ArticleManager()
 
@@ -117,7 +115,10 @@ class Article(ModelTrack):
 def article_pre_save(sender, instance, *args, **kwargs):
     if instance.slug is None:
         slugify_title(instance, save=False)
-    handle_published_date(instance)
+    # handle_published_date(instance)
+
+    if instance.auto_publish_date is None:
+        handle_empty_auto_publish_date(instance)
 
 def article_post_save(sender, instance, created, *args, **kwargs):
     if created:

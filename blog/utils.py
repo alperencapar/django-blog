@@ -38,15 +38,16 @@ def slugify_title(instance, save=False, new_slug=None):
         instance.save()
     return instance
 
+"""
 def handle_published_date(instance):
     #if article active and publish date not set(means publish now) then go ahead:
     if instance.is_active and instance.auto_publish_date is None:
         #django.utils timezone used for tz compatibility(tz info stored inside timezone.now() method) 
         instance.published_date = timezone.now()
         return instance
+"""
 
 def handle_pagination(query: QuerySet, per_item: int, page_number: int):
-    print(type(page_number))
     paginator = Paginator(query, per_item)
     last_page = paginator.num_pages
 
@@ -56,3 +57,9 @@ def handle_pagination(query: QuerySet, per_item: int, page_number: int):
         paginated_query = paginator.page(last_page)
 
     return paginated_query
+
+def handle_empty_auto_publish_date(instance):
+    if instance.auto_publish_date is None:
+        instance.auto_publish_date = timezone.now()
+    
+    return instance

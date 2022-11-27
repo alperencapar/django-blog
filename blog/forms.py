@@ -7,7 +7,7 @@ class ArticleForm(forms.ModelForm):
     class Meta:
         model = Article
         fields = "__all__"
-        exclude = ["slug", "author", "published_date", "auto_publish_date"]
+        exclude = ["slug", "author", "auto_publish_date"]
         # widgets = {
         #       "body": CKEditorUploadingWidget()
         #   }
